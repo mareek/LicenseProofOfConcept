@@ -1,0 +1,18 @@
+﻿<Window x:Class="LicenseProofOfConcept.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="350" Width="525">
+    <StackPanel>
+        <DockPanel>
+            <Label Margin="3">Machine Key : </Label>
+            <TextBox x:Name="MachineKeyTextBox" />
+        </DockPanel>
+        <DockPanel>
+            <Label Margin="3">Max Users :</Label>
+            <TextBox x:Name="MaxTextBox" />
+        </DockPanel>
+        <CheckBox x:Name="TrialCheckBox" Margin="3">Trial version</CheckBox>
+        <Button x:Name="GenerateButton" Click="GenerateButton_Click">Generate License File ...</Button>
+        <TextBox x:Name="debugTextBox" Height="200" TextWrapping="WrapWithOverflow"/>
+    </StackPanel>
+</Window>
