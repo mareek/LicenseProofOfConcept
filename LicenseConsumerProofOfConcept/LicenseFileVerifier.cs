@@ -44,10 +44,12 @@ namespace LicenseConsumerProofOfConcept
                     var signature = new byte[signatureLength];
                     fileStream.Read(signature, 0, signatureLength);
 
-                    xDoc = ExtractxDocFromZipStream(fileStream);
+                    var streamedXDoc = DecompressZipStream(fileStream);
+                    var xmlString = UTF8Encoding.UTF8.GetString(streamedXDoc);
+                    xDoc = XDocument.Load(new MemoryStream(streamedXDoc));
 
                     return fileFileVersion == fileVersion
-                           && VerifySignature(xDoc, signature);
+                           && VerifySignature(streamedXDoc, signature);
                 }
             }
             catch
@@ -56,29 +58,36 @@ namespace LicenseConsumerProofOfConcept
             }
         }
 
-        private static XDocument ExtractxDocFromZipStream(Stream zipStream)
+        private static byte[] DecompressZipStream(Stream zipStream)
         {
             using (var decompressedStream = new MemoryStream())
-            using (var decompressionStream = new DeflateStream(zipStream, CompressionMode.Decompress))
             {
-                decompressionStream.CopyTo(decompressedStream);
-                var xmlString = UTF8Encoding.UTF8.GetString(decompressedStream.ToArray());
-                return XDocument.Parse(xmlString);
+                using (var decompressionStream = new DeflateStream(zipStream, CompressionMode.Decompress))
+                {
+                    decompressionStream.CopyTo(decompressedStream);
+                }
+                return decompressedStream.ToArray();
             }
         }
 
-        private static bool VerifySignature(XDocument xDoc, byte[] signature)
+        private static bool VerifySignature(byte[] dataToVerify, byte[] signature)
         {
             using (var rsa = new RSACryptoServiceProvider())
-            using (var xmlStream = GetStreamFromXdoc(xDoc))
+            using (var sha = SHA256.Create())
             {
-                return rsa.VerifyData(xmlStream.ToArray(), "SHA256", signature);
+                return rsa.VerifyHash(sha.ComputeHash(dataToVerify), "SHA256", signature);
             }
         }
 
-        private static MemoryStream GetStreamFromXdoc(XDocument xDoc)
+        private static byte[] GetStreamedXdoc(XDocument xDoc)
         {
-            return new MemoryStream(UTF8Encoding.UTF8.GetBytes(xDoc.ToString()));
+            var memoryStream = new MemoryStream();
+            using (var xmlWriter = XmlWriter.Create(memoryStream, new XmlWriterSettings { Encoding = new UTF8Encoding(false) }))
+            {
+                xDoc.WriteTo(xmlWriter);
+            }
+            memoryStream.Position = 0;
+            return memoryStream.ToArray();
         }
     }
 }

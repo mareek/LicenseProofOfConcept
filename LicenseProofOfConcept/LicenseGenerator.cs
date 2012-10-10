@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Xml.Linq;
 using System.Text;
+using System.Xml;
 
 namespace LicenseProofOfConcept
 {
@@ -34,13 +35,14 @@ namespace LicenseProofOfConcept
         {
             using (var fileStream = destFile.Create())
             {
+                var streamedxDoc = GetStreamedXdoc(xDoc);
                 fileStream.WriteByte(fileVersion);
 
-                var signature = SignxDocument(xDoc);
+                var signature = SignData(streamedxDoc);
                 fileStream.Write(BitConverter.GetBytes(signature.Length), 0, 4);
                 fileStream.Write(signature, 0, signature.Length);
 
-                using (var xDocStream = GetStreamFromXdoc(xDoc))
+                using (var xDocStream = new MemoryStream(streamedxDoc))
                 using (var compressionStream = new DeflateStream(fileStream, CompressionMode.Compress))
                 {
                     xDocStream.CopyTo(compressionStream);
@@ -48,19 +50,25 @@ namespace LicenseProofOfConcept
             }
         }
 
-        private static Byte[] SignxDocument(XDocument xDoc)
+        private static byte[] SignData(byte[] dataToSign)
         {
             using (var rsa = new RSACryptoServiceProvider())
-            using (var xDocStream = GetStreamFromXdoc(xDoc))
+            using (var sha = SHA256.Create())
             {
                 rsa.FromXmlString(PRIVATE_KEY);
-                return rsa.SignData(xDocStream.ToArray(), "SHA256");
+                return rsa.SignHash(sha.ComputeHash(dataToSign), "SHA256");
             }
         }
 
-        private static MemoryStream GetStreamFromXdoc(XDocument xDoc)
+        private static byte[] GetStreamedXdoc(XDocument xDoc)
         {
-            return new MemoryStream(UTF8Encoding.UTF8.GetBytes(xDoc.ToString()));
+            var memoryStream = new MemoryStream();
+            using (var xmlWriter = XmlWriter.Create(memoryStream, new XmlWriterSettings { Encoding = new UTF8Encoding(false) }))
+            {
+                xDoc.WriteTo(xmlWriter);
+            }
+            memoryStream.Position = 0;
+            return memoryStream.ToArray();
         }
     }
 }
