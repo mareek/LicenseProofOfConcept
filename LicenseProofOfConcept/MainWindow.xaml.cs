@@ -36,7 +36,7 @@ namespace LicenseProofOfConcept
                            new XElement("License",
                                new XElement("MachineKey", MachineKeyTextBox.Text),
                                new XElement("MaxUsers", int.TryParse(MaxTextBox.Text, out maxUsers) ? maxUsers : (int?)null),
-                               new XElement("ExpirationDate", (TrialCheckBox.IsChecked ?? false) ? DateTime.Now.AddMonths(2).Date : (DateTime?)null)));
+                               new XElement("ExpirationDate", (TrialCheckBox.IsChecked ?? false) ? DateTime.Now.AddDays(60).Date : (DateTime?)null)));
             debugTextBox.Text = xDoc.ToString();
 
             var saveFileDialog = new SaveFileDialog

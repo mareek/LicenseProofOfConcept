@@ -9,6 +9,6 @@
             <TextBox x:Name="MachineKeyTextBox" IsReadOnly="True" />
         </DockPanel>
         <Button x:Name="OpenLicenseFileButton" DockPanel.Dock="Top" Margin="3" Click="OpenLicenseFileButton_Click">Open license file...</Button>
-        <TextBox x:Name="DebugTextBox"/>
+        <TextBox x:Name="DebugTextBox" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="32"/>
     </DockPanel>
 </Window>
