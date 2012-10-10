@@ -1,9 +1,14 @@
 ﻿<Window x:Class="LicenseProofOfConcept.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="350" Width="525" 
+        Loaded="Window_Loaded">
     <DockPanel>
-        <Button x:Name="OpenLicenseFileButton" DockPanel.Dock="Top" Click="OpenLicenseFileButton_Click">Open license file...</Button>
+        <DockPanel DockPanel.Dock="Top" Margin="3">
+            <Label>Machine key :</Label>
+            <TextBox x:Name="MachineKeyTextBox" IsReadOnly="True" />
+        </DockPanel>
+        <Button x:Name="OpenLicenseFileButton" DockPanel.Dock="Top" Margin="3" Click="OpenLicenseFileButton_Click">Open license file...</Button>
         <TextBox x:Name="DebugTextBox"/>
     </DockPanel>
 </Window>

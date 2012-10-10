@@ -41,14 +41,18 @@ namespace LicenseProofOfConcept
                 XDocument xDoc;
                 if (!LicenseFileVerifier.TryOpenLicenseFile(new FileInfo(openFileDialog.FileName), out xDoc))
                 {
-                    MessageBox.Show(this, "Invalid License !", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(this, "Corrupted License file ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-
-                if (xDoc != null)
+                else
                 {
                     DebugTextBox.Text = xDoc.ToString();
                 }
             }
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            this.MachineKeyTextBox.Text = MachineKeyHelper.GetMachineKey();
         }
     }
 }
