@@ -8,7 +8,7 @@ using System.Xml;
 
 namespace LicenseProofOfConcept
 {
-    public static class LicenseGenerator
+    public static class LicenseFileGenerator
     {
         private const byte fileVersion = 0;
 
@@ -37,14 +37,12 @@ namespace LicenseProofOfConcept
             {
                 var streamedxDoc = xDoc.ToBytes();
                 var compressedXDoc = CompressData(streamedxDoc);
+                var signature = SignData(compressedXDoc);
 
                 fileStream.WriteByte(fileVersion);
-
-                var signature = SignData(compressedXDoc);
-                fileStream.Write(BitConverter.GetBytes(signature.Length), 0, 4);
-                fileStream.Write(signature, 0, signature.Length);
-
-                fileStream.Write(compressedXDoc, 0, compressedXDoc.Length);
+                fileStream.WriteBytes(BitConverter.GetBytes(signature.Length));
+                fileStream.WriteBytes(signature);
+                fileStream.WriteBytes(compressedXDoc);
             }
         }
 

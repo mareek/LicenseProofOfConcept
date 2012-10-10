@@ -47,7 +47,7 @@ namespace LicenseProofOfConcept
                                      };
             if (saveFileDialog.ShowDialog(this) ?? false)
             {
-                LicenseGenerator.WriteLicenseFile(new FileInfo(saveFileDialog.FileName), xDoc);
+                LicenseFileGenerator.WriteLicenseFile(new FileInfo(saveFileDialog.FileName), xDoc);
             }
         }
 

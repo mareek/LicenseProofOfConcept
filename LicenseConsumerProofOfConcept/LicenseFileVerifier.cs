@@ -12,7 +12,7 @@ namespace LicenseProofOfConcept
 {
     public static class LicenseFileVerifier
     {
-        private const byte fileVersion = 0;
+        private const byte currentFileFormatVersion = 0;
         /* File version 0:
          * [0..0] File version
          * [1..4] signature length (sl)
@@ -35,20 +35,20 @@ namespace LicenseProofOfConcept
             {
                 using (var fileStream = licenseFile.OpenRead())
                 {
-                    var fileFileVersion = fileStream.ReadByte();
-
+                    var fileVersion = fileStream.ReadByte();
                     var signatureLength = BitConverter.ToInt32(fileStream.ReadBytes(4), 0);
-
                     var signature = fileStream.ReadBytes(signatureLength);
-
                     var zippedDoc = fileStream.ReadToEnd();
 
-                    var streamedXDoc = DecompressZippedData(zippedDoc);
-                    var xmlString = UTF8Encoding.UTF8.GetString(streamedXDoc);
-                    xDoc = XDocument.Load(new MemoryStream(streamedXDoc));
-
-                    return fileFileVersion == fileVersion
-                           && VerifySignature(zippedDoc, signature);
+                    if (fileVersion == currentFileFormatVersion && VerifySignature(zippedDoc, signature))
+                    {
+                        xDoc = XDocument.Load(new MemoryStream(DecompressZippedData(zippedDoc)));
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
             }
             catch

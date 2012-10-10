@@ -17,13 +17,18 @@ namespace LicenseProofOfConcept
             return result;
         }
 
-        public  static byte[] ReadToEnd(this Stream stream)
+        public static byte[] ReadToEnd(this Stream stream)
         {
             using (var memoryStream = new MemoryStream())
             {
                 stream.CopyTo(memoryStream);
                 return memoryStream.ToArray();
             }
+        }
+
+        public static void WriteBytes(this Stream stream, byte[] bytes)
+        {
+            stream.Write(bytes, 0, bytes.Length);
         }
 
         public static byte[] ToBytes(this XDocument xDoc)
