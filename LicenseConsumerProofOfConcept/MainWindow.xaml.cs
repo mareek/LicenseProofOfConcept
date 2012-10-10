@@ -15,7 +15,7 @@ using Microsoft.Win32;
 using System.Xml.Linq;
 using System.IO;
 
-namespace LicenseConsumerProofOfConcept
+namespace LicenseProofOfConcept
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

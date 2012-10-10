@@ -35,18 +35,16 @@ namespace LicenseProofOfConcept
         {
             using (var fileStream = destFile.Create())
             {
-                var streamedxDoc = GetStreamedXdoc(xDoc);
+                var streamedxDoc = xDoc.ToBytes();
+                var compressedXDoc = CompressData(streamedxDoc);
+
                 fileStream.WriteByte(fileVersion);
 
-                var signature = SignData(streamedxDoc);
+                var signature = SignData(compressedXDoc);
                 fileStream.Write(BitConverter.GetBytes(signature.Length), 0, 4);
                 fileStream.Write(signature, 0, signature.Length);
 
-                using (var xDocStream = new MemoryStream(streamedxDoc))
-                using (var compressionStream = new DeflateStream(fileStream, CompressionMode.Compress))
-                {
-                    xDocStream.CopyTo(compressionStream);
-                }
+                fileStream.Write(compressedXDoc, 0, compressedXDoc.Length);
             }
         }
 
@@ -60,15 +58,17 @@ namespace LicenseProofOfConcept
             }
         }
 
-        private static byte[] GetStreamedXdoc(XDocument xDoc)
+        private static byte[] CompressData(byte[] dataToCompress)
         {
-            var memoryStream = new MemoryStream();
-            using (var xmlWriter = XmlWriter.Create(memoryStream, new XmlWriterSettings { Encoding = new UTF8Encoding(false) }))
+            using (var compressedStream = new MemoryStream())
             {
-                xDoc.WriteTo(xmlWriter);
+                using (var compressionStream = new DeflateStream(compressedStream, CompressionMode.Compress))
+                using (var dataStream = new MemoryStream(dataToCompress))
+                {
+                    dataStream.CopyTo(compressionStream);
+                }
+                return compressedStream.ToArray();
             }
-            memoryStream.Position = 0;
-            return memoryStream.ToArray();
         }
     }
 }

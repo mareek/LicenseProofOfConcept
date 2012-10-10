@@ -8,7 +8,7 @@ using System.Xml.Linq;
 using System.Security.Cryptography;
 using System.Xml;
 
-namespace LicenseConsumerProofOfConcept
+namespace LicenseProofOfConcept
 {
     public static class LicenseFileVerifier
     {
@@ -37,19 +37,18 @@ namespace LicenseConsumerProofOfConcept
                 {
                     var fileFileVersion = fileStream.ReadByte();
 
-                    var rawSignatureLength = new byte[4];
-                    fileStream.Read(rawSignatureLength, 0, 4);
-                    var signatureLength = BitConverter.ToInt32(rawSignatureLength, 0);
+                    var signatureLength = BitConverter.ToInt32(fileStream.ReadBytes(4), 0);
 
-                    var signature = new byte[signatureLength];
-                    fileStream.Read(signature, 0, signatureLength);
+                    var signature = fileStream.ReadBytes(signatureLength);
 
-                    var streamedXDoc = DecompressZipStream(fileStream);
+                    var zippedDoc = fileStream.ReadToEnd();
+
+                    var streamedXDoc = DecompressZippedData(zippedDoc);
                     var xmlString = UTF8Encoding.UTF8.GetString(streamedXDoc);
                     xDoc = XDocument.Load(new MemoryStream(streamedXDoc));
 
                     return fileFileVersion == fileVersion
-                           && VerifySignature(streamedXDoc, signature);
+                           && VerifySignature(zippedDoc, signature);
                 }
             }
             catch
@@ -58,11 +57,12 @@ namespace LicenseConsumerProofOfConcept
             }
         }
 
-        private static byte[] DecompressZipStream(Stream zipStream)
+        private static byte[] DecompressZippedData(byte[] compressedData)
         {
             using (var decompressedStream = new MemoryStream())
             {
-                using (var decompressionStream = new DeflateStream(zipStream, CompressionMode.Decompress))
+                using (var compressedStream = new MemoryStream(compressedData))
+                using (var decompressionStream = new DeflateStream(compressedStream, CompressionMode.Decompress))
                 {
                     decompressionStream.CopyTo(decompressedStream);
                 }
@@ -75,19 +75,9 @@ namespace LicenseConsumerProofOfConcept
             using (var rsa = new RSACryptoServiceProvider())
             using (var sha = SHA256.Create())
             {
+                rsa.FromXmlString(PUBLIC_KEY);
                 return rsa.VerifyHash(sha.ComputeHash(dataToVerify), "SHA256", signature);
             }
-        }
-
-        private static byte[] GetStreamedXdoc(XDocument xDoc)
-        {
-            var memoryStream = new MemoryStream();
-            using (var xmlWriter = XmlWriter.Create(memoryStream, new XmlWriterSettings { Encoding = new UTF8Encoding(false) }))
-            {
-                xDoc.WriteTo(xmlWriter);
-            }
-            memoryStream.Position = 0;
-            return memoryStream.ToArray();
         }
     }
 }

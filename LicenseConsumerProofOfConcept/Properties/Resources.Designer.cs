@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace LicenseConsumerProofOfConcept.Properties
+namespace LicenseProofOfConcept.Properties
 {
 
 
