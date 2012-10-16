@@ -3,14 +3,22 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="350" Width="525">
     <StackPanel>
-        <DockPanel Margin="3">
-            <Label>Machine Key : </Label>
-            <TextBox x:Name="MachineKeyTextBox" />
-        </DockPanel>
-        <DockPanel Margin="3">
-            <Label>Max Users :</Label>
-            <TextBox x:Name="MaxTextBox" />
-        </DockPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            
+            <Label Grid.Column="0" Grid.Row="0">Machine Key :</Label>
+            <TextBox x:Name="MachineKeyTextBox" Grid.Column="1" Grid.Row="0" Margin="2" />
+
+            <Label Grid.Column="0" Grid.Row="1">Max Users :</Label>
+            <TextBox x:Name="MaxTextBox" Grid.Column="1" Grid.Row="1" Margin="2" />
+        </Grid>
         <CheckBox x:Name="TrialCheckBox" Margin="3">Trial version</CheckBox>
         <Button x:Name="GenerateButton" Click="GenerateButton_Click" Margin="3">Generate License File ...</Button>
         <TextBox x:Name="debugTextBox" Height="200" TextWrapping="WrapWithOverflow"/>
