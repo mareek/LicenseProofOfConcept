@@ -8,6 +8,11 @@
             <Label>Machine key :</Label>
             <TextBox x:Name="MachineKeyTextBox" IsReadOnly="True" />
         </DockPanel>
+        <DockPanel DockPanel.Dock="Top" Margin="3">
+            <Label>Key file :</Label>
+            <Button x:Name="KeyFileButton" Click="KeyFileButton_Click" Margin="3" Padding="3 0" DockPanel.Dock="Right">...</Button>
+            <TextBox x:Name="KeyFileTextBox"/>
+        </DockPanel>
         <Button x:Name="OpenLicenseFileButton" DockPanel.Dock="Top" Margin="3" Click="OpenLicenseFileButton_Click">Open license file...</Button>
         <TextBox x:Name="DebugTextBox" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="32"/>
     </DockPanel>

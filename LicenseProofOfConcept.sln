@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LicenseGeneratorProofOfConcept", "LicenseProofOfConcept\LicenseGeneratorProofOfConcept.csproj", "{B89C20EA-7C9D-428C-9600-313F2560D6F5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LicenseConsumerProofOfConcept", "LicenseConsumerProofOfConcept\LicenseConsumerProofOfConcept.csproj", "{68E6F69B-CDA1-437E-80C0-5D75D5445EFE}"

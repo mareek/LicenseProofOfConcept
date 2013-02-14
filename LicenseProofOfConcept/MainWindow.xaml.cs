@@ -47,25 +47,39 @@ namespace LicenseProofOfConcept
                                      };
             if (saveFileDialog.ShowDialog(this) ?? false)
             {
-                LicenseFileGenerator.WriteLicenseFile(new FileInfo(saveFileDialog.FileName), xDoc);
+                if (string.IsNullOrWhiteSpace(this.KeyFileTextBox.Text))
+                {
+                    LicenseFileGenerator.WriteLicenseFile(new FileInfo(saveFileDialog.FileName), xDoc);
+                }
+                else
+                {
+                    LicenseFileGenerator.WriteLicenseFile(new FileInfo(saveFileDialog.FileName), xDoc, new FileInfo(this.KeyFileTextBox.Text));
+                }
             }
         }
 
-        private byte[] GetMachineKey()
+        private void GenerateKeyFiles_Click(object sender, RoutedEventArgs e)
         {
-            using (var sha = SHA256.Create())
+            var folder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            
+            FileInfo privateKeyFile = new FileInfo(System.IO.Path.Combine(folder, "PrivateKey.prk"));
+            FileInfo publicKeyFile = new FileInfo(System.IO.Path.Combine(folder, "PublicKey.puk"));
+            LicenseFileGenerator.GenerateKeyPairFiles(privateKeyFile, publicKeyFile);
+        }
+
+        private void KeyFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog
             {
-                return sha.ComputeHash(UnicodeEncoding.UTF8.GetBytes(GetMotherBoardSerialNumber()));
+                Title = "Private key file",
+                Filter = "Private Key (*.prk)|*.prk",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+            };
+
+            if (openFileDialog.ShowDialog(this) ?? false)
+            {
+                KeyFileTextBox.Text = openFileDialog.FileName;
             }
         }
-
-        private string GetMotherBoardSerialNumber()
-        {
-            var searcher = new ManagementObjectSearcher("select * from Win32_BaseBoard ");
-
-            var resultBuilder = new StringBuilder();
-            return searcher.Get().Cast<ManagementBaseObject>().First()["SerialNumber"].ToString();
-        }
-
     }
 }

@@ -39,8 +39,19 @@ namespace LicenseProofOfConcept
 
             if (openFileDialog.ShowDialog(this) ?? false)
             {
+                FileInfo keyFile;
+                if (string.IsNullOrWhiteSpace(this.KeyFileTextBox.Text))
+                {
+                    keyFile = null;
+                }
+                else
+                {
+                    keyFile = new FileInfo(this.KeyFileTextBox.Text);
+                }
+
+
                 XDocument xDoc;
-                if (!LicenseFileVerifier.TryOpenLicenseFile(new FileInfo(openFileDialog.FileName), out xDoc))
+                if (!LicenseFileVerifier.TryOpenLicenseFile(new FileInfo(openFileDialog.FileName), out xDoc, keyFile))
                 {
                     SetMessage("Corrupted License file", true);
                 }
@@ -112,6 +123,21 @@ namespace LicenseProofOfConcept
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             this.MachineKeyTextBox.Text = MachineKeyHelper.GetMachineKey();
+        }
+
+        private void KeyFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                Title = "Public key file",
+                Filter = "Public key file (*.puk)|*.puk",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+            };
+
+            if (openFileDialog.ShowDialog(this) ?? false)
+            {
+                KeyFileTextBox.Text = openFileDialog.FileName;
+            }
         }
     }
 }

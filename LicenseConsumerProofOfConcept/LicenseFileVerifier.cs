@@ -27,7 +27,7 @@ namespace LicenseProofOfConcept
 </RSAKeyValue>";
 
 
-        public static bool TryOpenLicenseFile(FileInfo licenseFile, out XDocument xDoc)
+        public static bool TryOpenLicenseFile(FileInfo licenseFile, out XDocument xDoc, FileInfo keyFile = null)
         {
             xDoc = null;
 
@@ -40,7 +40,7 @@ namespace LicenseProofOfConcept
                     var signature = fileStream.ReadBytes(signatureLength);
                     var zippedDoc = fileStream.ReadToEnd();
 
-                    if (fileVersion == currentFileFormatVersion && VerifySignature(zippedDoc, signature))
+                    if (fileVersion == currentFileFormatVersion && VerifySignature(zippedDoc, signature, keyFile))
                     {
                         xDoc = XDocument.Load(new MemoryStream(DecompressZippedData(zippedDoc)));
                         return true;
@@ -70,12 +70,19 @@ namespace LicenseProofOfConcept
             }
         }
 
-        private static bool VerifySignature(byte[] dataToVerify, byte[] signature)
+        private static bool VerifySignature(byte[] dataToVerify, byte[] signature, FileInfo keyFile = null)
         {
             using (var rsa = new RSACryptoServiceProvider())
             using (var sha = SHA256.Create())
             {
-                rsa.FromXmlString(PUBLIC_KEY);
+                if (keyFile == null)
+                {
+                    rsa.FromXmlString(PUBLIC_KEY);
+                }
+                else
+                {
+                    rsa.ImportCspBlob(keyFile.Decompress());
+                }
                 return rsa.VerifyHash(sha.ComputeHash(dataToVerify), "SHA256", signature);
             }
         }

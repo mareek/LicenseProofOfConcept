@@ -31,13 +31,13 @@ namespace LicenseProofOfConcept
   <D>hki3M2Xx7AuPMrueL8qS0tKuxx1K3n8h9fVLOlE/wTDm42k6LaMCZ/z0PfOoMtxgh/56xrklvDj+3TAyMQXCAlzHsjhrCTGPAUucYWXrKHIXKiICU5QC5f8j0sJqV2YA5qCmUO2ANpxMYGs0xwbU6qCaAjHHgCZDguKCabvB8TE=</D>
 </RSAKeyValue>";
 
-        public static void WriteLicenseFile(FileInfo destFile, XDocument xDoc)
+        public static void WriteLicenseFile(FileInfo destFile, XDocument xDoc, FileInfo keyFile = null)
         {
             using (var fileStream = destFile.Create())
             {
                 var streamedxDoc = xDoc.ToBytes();
                 var compressedXDoc = CompressData(streamedxDoc);
-                var signature = SignData(compressedXDoc);
+                var signature = SignData(compressedXDoc, keyFile);
 
                 fileStream.WriteByte(fileVersion);
                 fileStream.WriteBytes(BitConverter.GetBytes(signature.Length));
@@ -46,12 +46,20 @@ namespace LicenseProofOfConcept
             }
         }
 
-        private static byte[] SignData(byte[] dataToSign)
+        private static byte[] SignData(byte[] dataToSign, FileInfo keyFile = null)
         {
             using (var rsa = new RSACryptoServiceProvider())
             using (var sha = SHA256.Create())
             {
-                rsa.FromXmlString(PRIVATE_KEY);
+                if (keyFile == null)
+                {
+                    rsa.FromXmlString(PRIVATE_KEY);
+                }
+                else
+                {
+                    rsa.ImportCspBlob(keyFile.Decompress());
+                }
+
                 return rsa.SignHash(sha.ComputeHash(dataToSign), "SHA256");
             }
         }
@@ -66,6 +74,15 @@ namespace LicenseProofOfConcept
                     dataStream.CopyTo(compressionStream);
                 }
                 return compressedStream.ToArray();
+            }
+        }
+
+        public static void GenerateKeyPairFiles(FileInfo privateKeyFile, FileInfo publicKeyFile)
+        {
+            using (var rsa = new RSACryptoServiceProvider())
+            {
+                rsa.ExportCspBlob(true).CompressToFile(privateKeyFile);
+                rsa.ExportCspBlob(false).CompressToFile(publicKeyFile);
             }
         }
     }

@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Xml.Linq;
 using System.Xml;
+using System.IO.Compression;
 
 namespace LicenseProofOfConcept
 {
@@ -41,5 +42,24 @@ namespace LicenseProofOfConcept
             memoryStream.Position = 0;
             return memoryStream.ToArray();
         }
+
+        public static void CompressToFile(this byte[] data, FileInfo destFile)
+        {
+            using (var fileStream = destFile.Create())
+            using (var compressionStream = new DeflateStream(fileStream, CompressionMode.Compress))
+            {
+                compressionStream.WriteBytes(data);
+            }
+        }
+
+        public static byte[] Decompress(this FileInfo destFile)
+        {
+            using (var fileStream = destFile.OpenRead())
+            using (var compressionStream = new DeflateStream(fileStream, CompressionMode.Decompress))
+            {
+                return compressionStream.ReadToEnd();
+            }
+        }
+
     }
 }
